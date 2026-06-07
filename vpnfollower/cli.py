@@ -1,4 +1,9 @@
-"""Command-line interface for VPN-Follower."""
+"""Command-line interface for VPN-Follower.
+
+Two modes:
+  * ``vpnfollower <target> [flags]``  -- investigate and print a report (default)
+  * ``vpnfollower serve [flags]``     -- run the web app (PWA) + JSON API
+"""
 
 from __future__ import annotations
 
@@ -16,6 +21,7 @@ examples:
   vpnfollower https://example.com  # resolve a URL/host first
   vpnfollower 203.0.113.10 --scan  # include an active VPN-port probe
   vpnfollower 8.8.8.8 --json       # machine-readable output
+  vpnfollower serve                # launch the installable web app (PWA)
 
 Attribution only. VPN-Follower reports the network/registry/provider behind an
 address; it does not reveal the real-world identity of a person. Only actively
@@ -48,9 +54,21 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: list[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+def build_serve_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="vpnfollower serve",
+        description="Run the VPN-Follower web app (installable PWA) and JSON API.",
+    )
+    parser.add_argument("--host", default="127.0.0.1",
+                        help="interface to bind (default: 127.0.0.1; use 0.0.0.0 to expose)")
+    parser.add_argument("--port", type=int, default=8721, help="port (default: 8721)")
+    parser.add_argument("--allow-scan", action="store_true",
+                        help="permit the active port-scan endpoint over the API")
+    return parser
 
+
+def _run_investigate(argv: list[str]) -> int:
+    args = build_parser().parse_args(argv)
     inv = investigate(
         args.target,
         do_rdap=not args.no_rdap,
@@ -59,14 +77,26 @@ def main(argv: list[str] | None = None) -> int:
         do_scan=args.scan,
         timeout=args.timeout,
     )
-
     if args.json:
         print(to_json(inv))
     else:
         color = (not args.no_color) and sys.stdout.isatty()
         print(to_text(inv, color=color))
-
     return 0 if inv.target.ip else 1
+
+
+def _run_serve(argv: list[str]) -> int:
+    from .server import serve  # imported lazily so investigate mode stays light
+
+    args = build_serve_parser().parse_args(argv)
+    return serve(host=args.host, port=args.port, allow_scan=args.allow_scan)
+
+
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "serve":
+        return _run_serve(argv[1:])
+    return _run_investigate(argv)
 
 
 if __name__ == "__main__":

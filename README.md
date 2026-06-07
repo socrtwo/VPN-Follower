@@ -77,6 +77,45 @@ vpnfollower 203.0.113.10 --scan   # also actively probe common VPN ports
 | `--timeout N` | Per-request network timeout in seconds (default 8)  |
 | `--no-color`  | Disable coloured output                             |
 
+### Web app (and the install target for mobile)
+
+```bash
+vpnfollower serve            # http://127.0.0.1:8721  -- open and "Install app"
+vpnfollower serve --allow-scan   # also expose the active port-scan endpoint
+```
+
+`serve` launches an installable **Progressive Web App** plus a small JSON API
+(`GET /api/investigate?target=…`). A browser can't perform raw DNS/RDAP/socket
+lookups itself, so the page talks to this bundled backend. Binds to localhost by
+default; `--host 0.0.0.0` exposes it (with a warning) and active scanning over
+the API stays off unless `--allow-scan` is given.
+
+## Install files / platforms
+
+Every tagged [release](https://github.com/socrtwo/vpn-follower/releases) ships
+ready-to-install artifacts, built automatically by CI:
+
+| Platform | What to grab | Install |
+|---|---|---|
+| **Windows** | `vpnfollower-windows-x64.zip` | unzip → run `vpnfollower.exe` |
+| **macOS** | `vpnfollower-macos-*.tar.gz` | `tar xzf` → `./vpnfollower` |
+| **Linux** | `vpnfollower-linux-*.tar.gz` | `tar xzf` → `./vpnfollower` |
+| **ChromeOS** | PWA, or the Linux binary | install the PWA, or run the Linux build in the Linux container |
+| **Android** | the PWA | open in Chrome → **Install app** |
+| **iOS / iPadOS** | the PWA | open in Safari → **Add to Home Screen** |
+| **Web** | `vpnfollower-web-pwa.zip` | host the static files, or `vpnfollower serve` |
+| **Any (Python)** | `*.whl` / `*.tar.gz` | `pip install vpnfollower-*.whl` |
+
+The native desktop binaries are produced with PyInstaller; build one locally
+with [`scripts/build_desktop.sh`](scripts/build_desktop.sh). Store-signed native
+mobile packages (Play `.aab` / App Store `.ipa`) need the maintainer's own
+signing credentials — see [`packaging/MOBILE.md`](packaging/MOBILE.md). The PWA
+is the supported, signing-free install path for Web, ChromeOS, Android and iOS
+today.
+
+To cut a release: `git tag v1.2.3 && git push origin v1.2.3` — the
+[release workflow](.github/workflows/release.yml) builds and publishes everything.
+
 ## How it works — the layers
 
 Each "layer" is an independent source. If one fails (you're offline, a service
