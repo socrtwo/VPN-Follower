@@ -78,14 +78,14 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          cd packaging/dist
+          cd dist
           ARCH=$(uname -m)
-          tar czf "../../vpnfollower-${{ matrix.label }}-${ARCH}.tar.gz" vpnfollower
+          tar czf "../vpnfollower-${{ matrix.label }}-${ARCH}.tar.gz" vpnfollower
       - name: Package (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          Compress-Archive -Path packaging/dist/vpnfollower.exe -DestinationPath "vpnfollower-windows-x64.zip"
+          Compress-Archive -Path dist/vpnfollower.exe -DestinationPath "vpnfollower-windows-x64.zip"
       - uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ matrix.label }}
