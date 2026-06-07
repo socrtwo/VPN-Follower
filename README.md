@@ -98,7 +98,7 @@ ready-to-install artifacts, built automatically by CI:
 | Platform | What to grab | Install |
 |---|---|---|
 | **Windows** | `vpnfollower-windows-x64.zip` | unzip → run `vpnfollower.exe` |
-| **macOS** | `vpnfollower-macos-*.tar.gz` | `tar xzf` → `./vpnfollower` |
+| **macOS** | `vpnfollower-macos-*.tar.gz` | `tar xzf` → `./vpnfollower` (Intel `x86_64` & Apple Silicon `arm64` builds) |
 | **Linux** | `vpnfollower-linux-*.tar.gz` | `tar xzf` → `./vpnfollower` |
 | **ChromeOS** | PWA, or the Linux binary | install the PWA, or run the Linux build in the Linux container |
 | **Android** | the PWA | open in Chrome → **Install app** |

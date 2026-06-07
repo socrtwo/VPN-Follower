@@ -52,7 +52,7 @@ jobs:
 
   # --- Native desktop binaries: Windows, macOS, Linux ---------------------
   desktop:
-    name: Native binary (${{ matrix.label }})
+    name: Native binary (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -60,10 +60,16 @@ jobs:
         include:
           - os: ubuntu-latest
             label: linux
+            name: Linux x86_64
+          - os: macos-13
+            label: macos
+            name: macOS x86_64 (Intel)
           - os: macos-latest
             label: macos
+            name: macOS arm64 (Apple Silicon)
           - os: windows-latest
             label: windows
+            name: Windows x64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -88,7 +94,7 @@ jobs:
           Compress-Archive -Path dist/vpnfollower.exe -DestinationPath "vpnfollower-windows-x64.zip"
       - uses: actions/upload-artifact@v4
         with:
-          name: desktop-${{ matrix.label }}
+          name: desktop-${{ matrix.os }}
           path: |
             vpnfollower-*.tar.gz
             vpnfollower-*.zip
