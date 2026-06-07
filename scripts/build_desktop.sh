@@ -9,10 +9,11 @@ cd "$ROOT"
 python3 -m pip install --upgrade pip
 python3 -m pip install pyinstaller .
 
+# PyInstaller writes to ./dist relative to the current working directory (repo root).
 pyinstaller --clean -y packaging/vpnfollower.spec
 
 echo
 echo "Built binary:"
-ls -lh packaging/dist/vpnfollower* 2>/dev/null || ls -lh packaging/dist/
+ls -lh dist/vpnfollower* 2>/dev/null || ls -lh dist/
 echo
-echo "Run it:  ./packaging/dist/vpnfollower self"
+echo "Run it:  ./dist/vpnfollower self"
