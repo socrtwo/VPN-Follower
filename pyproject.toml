@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vpn-follower"
+version = "1.0.0"
+description = "Follow a connection through its layers of obfuscation and report everything that can be derived from an IP, host, URL, or your own address."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Paul D Pruitt" }]
+keywords = ["vpn", "proxy", "osint", "ip-intelligence", "tor", "security"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Security",
+    "Topic :: Internet",
+]
+dependencies = []  # standard library only
+
+[project.urls]
+Homepage = "https://github.com/socrtwo/vpn-follower"
+
+[project.scripts]
+vpnfollower = "vpnfollower.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["vpnfollower*"]
