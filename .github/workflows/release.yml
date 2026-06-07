@@ -51,9 +51,15 @@ jobs:
           path: vpnfollower-web-pwa.zip
 
   # --- Native desktop binaries: Windows, macOS, Linux ---------------------
+  # macOS builds a single universal2 binary (Intel + Apple Silicon) on the
+  # Apple Silicon runner. GitHub's separate Intel `macos-13` runners are being
+  # retired, so we no longer depend on them.
   desktop:
     name: Native binary (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
+    env:
+      VPNF_TARGET_ARCH: ${{ matrix.target_arch }}
+      ARCHIVE_ARCH: ${{ matrix.archive_arch }}
     strategy:
       fail-fast: false
       matrix:
@@ -61,12 +67,11 @@ jobs:
           - os: ubuntu-latest
             label: linux
             name: Linux x86_64
-          - os: macos-13
-            label: macos
-            name: macOS x86_64 (Intel)
           - os: macos-latest
             label: macos
-            name: macOS arm64 (Apple Silicon)
+            name: macOS universal2 (Intel + Apple Silicon)
+            target_arch: universal2
+            archive_arch: universal2
           - os: windows-latest
             label: windows
             name: Windows x64
@@ -80,12 +85,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller .
           pyinstaller --clean -y packaging/vpnfollower.spec
+      - name: Verify macOS architectures
+        if: runner.os == 'macOS'
+        run: |
+          echo "Built slices:"
+          lipo -archs dist/vpnfollower
+          lipo -archs dist/vpnfollower | grep -q x86_64
+          lipo -archs dist/vpnfollower | grep -q arm64
       - name: Package (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
           cd dist
-          ARCH=$(uname -m)
+          ARCH="${ARCHIVE_ARCH:-$(uname -m)}"
           tar czf "../vpnfollower-${{ matrix.label }}-${ARCH}.tar.gz" vpnfollower
       - name: Package (Windows)
         if: runner.os == 'Windows'
