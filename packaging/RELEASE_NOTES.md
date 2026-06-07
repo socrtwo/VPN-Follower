@@ -7,7 +7,7 @@ have native one-file binaries; and `pip install` works on anything with Python.
 | Platform | Artifact | How to install |
 |---|---|---|
 | **Windows** | `vpnfollower-windows-x64.zip` | Unzip, run `vpnfollower.exe`. Launches the app UI in your browser; or use it from a terminal as a CLI. |
-| **macOS** | `vpnfollower-macos-*.tar.gz` | `tar xzf` and run `./vpnfollower`. (Unsigned — first run: right-click → Open, or `xattr -dr com.apple.quarantine vpnfollower`.) |
+| **macOS** | `vpnfollower-macos-universal2.tar.gz` | `tar xzf` and run `./vpnfollower`. One universal2 binary — runs natively on Intel **and** Apple Silicon. (Unsigned — first run: right-click → Open, or `xattr -dr com.apple.quarantine vpnfollower`.) |
 | **Linux** | `vpnfollower-linux-*.tar.gz` | `tar xzf` and run `./vpnfollower`. |
 | **ChromeOS** | `vpnfollower-web-pwa.zip` **or** the Linux binary | Use the PWA (below). ChromeOS can also run the Linux build under its Linux container. |
 | **Android** | `vpnfollower-web-pwa.zip` (PWA) | Open the hosted app in Chrome → menu → **Install app / Add to Home screen**. |
