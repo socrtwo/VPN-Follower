@@ -1,0 +1,112 @@
+name: Release
+
+# Cut a release by pushing a version tag, e.g.:
+#   git tag v1.0.0 && git push origin v1.0.0
+# This builds installable artifacts for every supported platform and publishes
+# them on a GitHub Release.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # --- Universal pip package (works anywhere Python runs) ------------------
+  python-dist:
+    name: Python wheel + sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          python -m pip install --upgrade pip build
+          python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: dist/*
+
+  # --- Web / ChromeOS / Android / iOS: the installable PWA ----------------
+  web:
+    name: Web app (PWA) bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Zip the PWA
+        run: |
+          cd vpnfollower
+          zip -r ../vpnfollower-web-pwa.zip web
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: vpnfollower-web-pwa.zip
+
+  # --- Native desktop binaries: Windows, macOS, Linux ---------------------
+  desktop:
+    name: Native binary (${{ matrix.label }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: linux
+          - os: macos-latest
+            label: macos
+          - os: windows-latest
+            label: windows
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install + build
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller .
+          pyinstaller --clean -y packaging/vpnfollower.spec
+      - name: Package (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          cd packaging/dist
+          ARCH=$(uname -m)
+          tar czf "../../vpnfollower-${{ matrix.label }}-${ARCH}.tar.gz" vpnfollower
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Compress-Archive -Path packaging/dist/vpnfollower.exe -DestinationPath "vpnfollower-windows-x64.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.label }}
+          path: |
+            vpnfollower-*.tar.gz
+            vpnfollower-*.zip
+
+  # --- Collect everything and publish the GitHub Release ------------------
+  release:
+    name: Publish GitHub Release
+    needs: [python-dist, web, desktop]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Flatten artifact tree
+        run: |
+          mkdir -p release
+          find artifacts -type f -exec cp {} release/ \;
+          ls -lh release
+      - name: Create / update release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true
+          body_path: packaging/RELEASE_NOTES.md
+          fail_on_unmatched_files: false

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>VPN-Follower</title>
+  <meta name="description" content="Follow a connection through its layers of obfuscation." />
+  <meta name="theme-color" content="#0f1226" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <img class="logo" src="icons/icon-192.png" alt="" width="36" height="36" />
+    <h1>VPN&#8209;Follower</h1>
+    <button id="install" class="install" hidden>Install app</button>
+  </header>
+
+  <main>
+    <form id="form" class="search" autocomplete="off">
+      <input id="target" name="target" type="text" inputmode="url"
+             placeholder="IP, hostname, URL, or 'self'" aria-label="target" />
+      <button id="go" type="submit">Follow</button>
+    </form>
+    <div class="options">
+      <label><input type="checkbox" id="opt-rdap" checked /> WHOIS/RDAP</label>
+      <label><input type="checkbox" id="opt-tor" checked /> Tor</label>
+      <label><input type="checkbox" id="opt-dnsbl" checked /> Blocklists</label>
+      <label title="Only available if the server was started with --allow-scan">
+        <input type="checkbox" id="opt-scan" /> Active port scan
+      </label>
+    </div>
+
+    <section id="status" class="status" hidden></section>
+    <section id="verdict" class="verdict" hidden></section>
+    <section id="layers" class="layers"></section>
+
+    <p class="disclaimer">
+      Attribution only &mdash; this reports the network/registry/provider behind an
+      address, not the real-world identity of a person behind a well-configured VPN.
+    </p>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

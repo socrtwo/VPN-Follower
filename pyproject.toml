@@ -25,5 +25,18 @@ Homepage = "https://github.com/socrtwo/vpn-follower"
 [project.scripts]
 vpnfollower = "vpnfollower.cli:main"
 
+[project.optional-dependencies]
+build = ["pyinstaller>=6.0", "build>=1.0"]
+test = ["pytest>=7.0"]
+
 [tool.setuptools.packages.find]
 include = ["vpnfollower*"]
+
+[tool.setuptools.package-data]
+vpnfollower = [
+    "web/*.html",
+    "web/*.css",
+    "web/*.js",
+    "web/*.webmanifest",
+    "web/icons/*.png",
+]
